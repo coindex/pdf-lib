@@ -6,6 +6,7 @@ declare class PDFName extends PDFObject {
     static readonly Resources: PDFName;
     static readonly Font: PDFName;
     static readonly XObject: PDFName;
+    static readonly ExtGState: PDFName;
     static readonly Contents: PDFName;
     static readonly Type: PDFName;
     static readonly Parent: PDFName;
@@ -27,6 +28,8 @@ declare class PDFName extends PDFObject {
     static readonly ModDate: PDFName;
     private readonly encodedName;
     private constructor();
+    asBytes(): Uint8Array;
+    decodeText(): string;
     asString(): string;
     /** @deprecated in favor of [[PDFName.asString]] */
     value(): string;

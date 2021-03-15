@@ -3,6 +3,8 @@ import PDFArray from "../objects/PDFArray";
 import PDFDict from "../objects/PDFDict";
 import PDFName from "../objects/PDFName";
 import PDFNumber from "../objects/PDFNumber";
+import PDFPageLeaf from "./PDFPageLeaf";
+import { InvalidTargetIndexError, CorruptPageTreeError } from "../errors";
 var PDFPageTree = /** @class */ (function (_super) {
     __extends(PDFPageTree, _super);
     function PDFPageTree() {
@@ -23,11 +25,7 @@ var PDFPageTree = /** @class */ (function (_super) {
     };
     PDFPageTree.prototype.pushLeafNode = function (leafRef) {
         var Kids = this.Kids();
-        Kids.push(leafRef);
-        this.ascend(function (node) {
-            var Count = node.Count();
-            node.set(PDFName.of('Count'), PDFNumber.of(Count.asNumber() + 1));
-        });
+        this.insertLeafKid(Kids.size(), leafRef);
     };
     /**
      * Inserts the given ref as a leaf node of this page tree at the specified
@@ -40,79 +38,88 @@ var PDFPageTree = /** @class */ (function (_super) {
      */
     PDFPageTree.prototype.insertLeafNode = function (leafRef, targetIndex) {
         var Kids = this.Kids();
-        var kidSize = Kids.size();
-        var kidIdx = 0;
-        var pageIdx = 0;
-        while (pageIdx < targetIndex) {
-            if (kidIdx >= kidSize) {
-                throw new Error("Index out of bounds: " + kidIdx + "/" + kidSize);
+        var Count = this.Count().asNumber();
+        if (targetIndex > Count) {
+            throw new InvalidTargetIndexError(targetIndex, Count);
+        }
+        var leafsRemainingUntilTarget = targetIndex;
+        for (var idx = 0, len = Kids.size(); idx < len; idx++) {
+            if (leafsRemainingUntilTarget === 0) {
+                // Insert page and return
+                this.insertLeafKid(idx, leafRef);
+                return undefined;
             }
-            var kidRef = Kids.get(kidIdx++);
+            var kidRef = Kids.get(idx);
             var kid = this.context.lookup(kidRef);
             if (kid instanceof PDFPageTree) {
-                var kidCount = kid.Count().asNumber();
-                if (pageIdx + kidCount > targetIndex) {
-                    return kid.insertLeafNode(leafRef, targetIndex - pageIdx) || kidRef;
+                if (kid.Count().asNumber() > leafsRemainingUntilTarget) {
+                    // Dig in
+                    return (kid.insertLeafNode(leafRef, leafsRemainingUntilTarget) || kidRef);
                 }
                 else {
-                    pageIdx += kidCount;
+                    // Move on
+                    leafsRemainingUntilTarget -= kid.Count().asNumber();
                 }
             }
-            else {
-                pageIdx += 1;
+            if (kid instanceof PDFPageLeaf) {
+                // Move on
+                leafsRemainingUntilTarget -= 1;
             }
         }
-        Kids.insert(kidIdx, leafRef);
-        this.ascend(function (node) {
-            var Count = node.Count();
-            node.set(PDFName.of('Count'), PDFNumber.of(Count.asNumber() + 1));
-        });
-        return undefined;
+        if (leafsRemainingUntilTarget === 0) {
+            // Insert page at the end and return
+            this.insertLeafKid(Kids.size(), leafRef);
+            return undefined;
+        }
+        // Should never get here if `targetIndex` is valid
+        throw new CorruptPageTreeError(targetIndex, 'insertLeafNode');
     };
     /**
      * Removes the leaf node at the specified index (zero-based) from this page
      * tree. Also decrements the `Count` of each page tree in the hierarchy to
      * account for the removed page.
+     *
+     * If `prune` is true, then intermediate tree nodes will be removed from the
+     * tree if they contain 0 children after the leaf node is removed.
      */
-    PDFPageTree.prototype.removeLeafNode = function (targetIndex) {
+    PDFPageTree.prototype.removeLeafNode = function (targetIndex, prune) {
+        if (prune === void 0) { prune = true; }
         var Kids = this.Kids();
-        var kidSize = Kids.size();
-        var kidIdx = 0;
-        var pageIdx = 0;
-        while (pageIdx < targetIndex) {
-            if (kidIdx >= kidSize) {
-                throw new Error("Index out of bounds: " + kidIdx + "/" + (kidSize - 1) + " (a)");
-            }
-            var kidRef = Kids.get(kidIdx++);
+        var Count = this.Count().asNumber();
+        if (targetIndex >= Count) {
+            throw new InvalidTargetIndexError(targetIndex, Count);
+        }
+        var leafsRemainingUntilTarget = targetIndex;
+        for (var idx = 0, len = Kids.size(); idx < len; idx++) {
+            var kidRef = Kids.get(idx);
             var kid = this.context.lookup(kidRef);
             if (kid instanceof PDFPageTree) {
-                var kidCount = kid.Count().asNumber();
-                if (pageIdx + kidCount > targetIndex) {
-                    kid.removeLeafNode(targetIndex - pageIdx);
+                if (kid.Count().asNumber() > leafsRemainingUntilTarget) {
+                    // Dig in
+                    kid.removeLeafNode(leafsRemainingUntilTarget, prune);
+                    if (prune && kid.Kids().size() === 0)
+                        Kids.remove(idx);
                     return;
                 }
                 else {
-                    pageIdx += kidCount;
+                    // Move on
+                    leafsRemainingUntilTarget -= kid.Count().asNumber();
                 }
             }
-            else {
-                pageIdx += 1;
+            if (kid instanceof PDFPageLeaf) {
+                if (leafsRemainingUntilTarget === 0) {
+                    // Remove page and return
+                    this.removeKid(idx);
+                    return;
+                }
+                else {
+                    // Move on
+                    leafsRemainingUntilTarget -= 1;
+                }
             }
         }
-        if (kidIdx >= kidSize) {
-            throw new Error("Index out of bounds: " + kidIdx + "/" + (kidSize - 1) + " (b)");
-        }
-        var target = Kids.lookup(kidIdx);
-        if (target instanceof PDFPageTree) {
-            target.removeLeafNode(0);
-        }
-        else {
-            Kids.remove(kidIdx);
-            this.ascend(function (node) {
-                var Count = node.Count();
-                node.set(PDFName.of('Count'), PDFNumber.of(Count.asNumber() - 1));
-            });
-        }
+        // Should never get here if `targetIndex` is valid
+        throw new CorruptPageTreeError(targetIndex, 'removeLeafNode');
     };
     PDFPageTree.prototype.ascend = function (visitor) {
         visitor(this);
@@ -130,6 +137,25 @@ var PDFPageTree = /** @class */ (function (_super) {
                 kid.traverse(visitor);
             visitor(kid, kidRef);
         }
+    };
+    PDFPageTree.prototype.insertLeafKid = function (kidIdx, leafRef) {
+        var Kids = this.Kids();
+        this.ascend(function (node) {
+            var newCount = node.Count().asNumber() + 1;
+            node.set(PDFName.of('Count'), PDFNumber.of(newCount));
+        });
+        Kids.insert(kidIdx, leafRef);
+    };
+    PDFPageTree.prototype.removeKid = function (kidIdx) {
+        var Kids = this.Kids();
+        var kid = Kids.lookup(kidIdx);
+        if (kid instanceof PDFPageLeaf) {
+            this.ascend(function (node) {
+                var newCount = node.Count().asNumber() - 1;
+                node.set(PDFName.of('Count'), PDFNumber.of(newCount));
+            });
+        }
+        Kids.remove(kidIdx);
     };
     PDFPageTree.withContext = function (context, parent) {
         var dict = new Map();

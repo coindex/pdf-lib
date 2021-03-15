@@ -24,8 +24,9 @@ import { charFromCode } from "../../utils";
 // TODO: Throw error if eof is reached before finishing object parse...
 var PDFObjectParser = /** @class */ (function (_super) {
     __extends(PDFObjectParser, _super);
-    function PDFObjectParser(byteStream, context) {
-        var _this = _super.call(this, byteStream) || this;
+    function PDFObjectParser(byteStream, context, capNumbers) {
+        if (capNumbers === void 0) { capNumbers = false; }
+        var _this = _super.call(this, byteStream, capNumbers) || this;
         _this.context = context;
         return _this;
     }
@@ -219,11 +220,10 @@ var PDFObjectParser = /** @class */ (function (_super) {
             throw new PDFStreamParsingError(startPos);
         return end;
     };
-    PDFObjectParser.forBytes = function (bytes, context) {
-        return new PDFObjectParser(ByteStream.of(bytes), context);
-    };
-    PDFObjectParser.forByteStream = function (byteStream, context) {
-        return new PDFObjectParser(byteStream, context);
+    PDFObjectParser.forBytes = function (bytes, context, capNumbers) { return new PDFObjectParser(ByteStream.of(bytes), context, capNumbers); };
+    PDFObjectParser.forByteStream = function (byteStream, context, capNumbers) {
+        if (capNumbers === void 0) { capNumbers = false; }
+        return new PDFObjectParser(byteStream, context, capNumbers);
     };
     return PDFObjectParser;
 }(BaseParser));

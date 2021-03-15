@@ -18,7 +18,7 @@ export default class PDFFont implements Embeddable {
      * @param doc The document to which the font will belong.
      * @param embedder The embedder that will be used to embed the font.
      */
-    static of: (ref: PDFRef, doc: PDFDocument, embedder: StandardFontEmbedder | CustomFontEmbedder) => PDFFont;
+    static of: (ref: PDFRef, doc: PDFDocument, embedder: FontEmbedder) => PDFFont;
     /** The unique reference assigned to this font within the document. */
     readonly ref: PDFRef;
     /** The document to which this font belongs. */
@@ -56,10 +56,17 @@ export default class PDFFont implements Embeddable {
      * ```js
      * const height = font.heightAtSize(24)
      * ```
+     *
+     * The `options.descender` value controls whether or not the font's
+     * descender is included in the height calculation.
+     *
      * @param size The font size to be used for this measurement.
+     * @param options The options to be used when computing this measurement.
      * @returns The height of this font at the given size.
      */
-    heightAtSize(size: number): number;
+    heightAtSize(size: number, options?: {
+        descender?: boolean;
+    }): number;
     /**
      * Compute the font size at which this font is a given height. For example:
      * ```js

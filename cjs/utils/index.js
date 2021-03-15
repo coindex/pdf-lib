@@ -12,5 +12,5 @@ tslib_1.__exportStar(require("./objects"), exports);
 tslib_1.__exportStar(require("./validators"), exports);
 tslib_1.__exportStar(require("./pdfDocEncoding"), exports);
 var Cache_1 = require("./Cache");
-exports.Cache = Cache_1.default;
+Object.defineProperty(exports, "Cache", { enumerable: true, get: function () { return Cache_1.default; } });
 //# sourceMappingURL=index.js.map

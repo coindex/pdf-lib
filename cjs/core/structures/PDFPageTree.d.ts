@@ -27,11 +27,16 @@ declare class PDFPageTree extends PDFDict {
      * Removes the leaf node at the specified index (zero-based) from this page
      * tree. Also decrements the `Count` of each page tree in the hierarchy to
      * account for the removed page.
+     *
+     * If `prune` is true, then intermediate tree nodes will be removed from the
+     * tree if they contain 0 children after the leaf node is removed.
      */
-    removeLeafNode(targetIndex: number): void;
+    removeLeafNode(targetIndex: number, prune?: boolean): void;
     ascend(visitor: (node: PDFPageTree) => any): void;
     /** Performs a Post-Order traversal of this page tree */
     traverse(visitor: (node: TreeNode, ref: PDFRef) => any): void;
+    private insertLeafKid;
+    private removeKid;
 }
 export default PDFPageTree;
 //# sourceMappingURL=PDFPageTree.d.ts.map

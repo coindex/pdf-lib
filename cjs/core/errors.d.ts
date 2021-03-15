@@ -32,6 +32,27 @@ export declare class PDFArrayIsNotRectangleError extends Error {
 export declare class InvalidPDFDateStringError extends Error {
     constructor(value: string);
 }
+export declare class InvalidTargetIndexError extends Error {
+    constructor(targetIndex: number, Count: number);
+}
+export declare class CorruptPageTreeError extends Error {
+    constructor(targetIndex: number, operation: string);
+}
+export declare class IndexOutOfBoundsError extends Error {
+    constructor(index: number, min: number, max: number);
+}
+export declare class InvalidAcroFieldValueError extends Error {
+    constructor();
+}
+export declare class MultiSelectValueError extends Error {
+    constructor();
+}
+export declare class MissingDAEntryError extends Error {
+    constructor(fieldName: string);
+}
+export declare class MissingTfOperatorError extends Error {
+    constructor(fieldName: string);
+}
 /***** Parser Errors ******/
 export interface Position {
     line: number;

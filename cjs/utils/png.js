@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.PNG = exports.PngType = void 0;
 var tslib_1 = require("tslib");
 var upng_1 = tslib_1.__importDefault(require("@pdf-lib/upng"));
 var getImageType = function (ctype) {
@@ -47,7 +48,7 @@ var PNG = /** @class */ (function () {
         var frame = new Uint8Array(frames[0]);
         var _a = splitAlphaChannel(frame), rgbChannel = _a.rgbChannel, alphaChannel = _a.alphaChannel;
         this.rgbChannel = rgbChannel;
-        var hasAlphaValues = alphaChannel.some(function (a) { return a < 1; });
+        var hasAlphaValues = alphaChannel.some(function (a) { return a < 255; });
         if (hasAlphaValues)
             this.alphaChannel = alphaChannel;
         this.type = getImageType(upng.ctype);

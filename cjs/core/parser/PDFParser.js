@@ -21,10 +21,11 @@ var Numeric_1 = require("../syntax/Numeric");
 var utils_1 = require("../../utils");
 var PDFParser = /** @class */ (function (_super) {
     tslib_1.__extends(PDFParser, _super);
-    function PDFParser(pdfBytes, objectsPerTick, throwOnInvalidObject) {
+    function PDFParser(pdfBytes, objectsPerTick, throwOnInvalidObject, capNumbers) {
         if (objectsPerTick === void 0) { objectsPerTick = Infinity; }
         if (throwOnInvalidObject === void 0) { throwOnInvalidObject = false; }
-        var _this = _super.call(this, ByteStream_1.default.of(pdfBytes), PDFContext_1.default.create()) || this;
+        if (capNumbers === void 0) { capNumbers = false; }
+        var _this = _super.call(this, ByteStream_1.default.of(pdfBytes), PDFContext_1.default.create(), capNumbers) || this;
         _this.alreadyParsed = false;
         _this.parsedObjects = 0;
         _this.shouldWaitForTick = function () {
@@ -60,6 +61,10 @@ var PDFParser = /** @class */ (function (_super) {
                         return [3 /*break*/, 1];
                     case 3:
                         this.maybeRecoverRoot();
+                        if (this.context.lookup(PDFRef_1.default.of(0))) {
+                            console.warn('Removing parsed object: 0 0 R');
+                            this.context.delete(PDFRef_1.default.of(0));
+                        }
                         return [2 /*return*/, this.context];
                 }
             });
@@ -342,7 +347,9 @@ var PDFParser = /** @class */ (function (_super) {
             this.skipWhitespaceAndComments();
         }
     };
-    PDFParser.forBytesWithOptions = function (pdfBytes, objectsPerTick, throwOnInvalidObject) { return new PDFParser(pdfBytes, objectsPerTick, throwOnInvalidObject); };
+    PDFParser.forBytesWithOptions = function (pdfBytes, objectsPerTick, throwOnInvalidObject, capNumbers) {
+        return new PDFParser(pdfBytes, objectsPerTick, throwOnInvalidObject, capNumbers);
+    };
     return PDFParser;
 }(PDFObjectParser_1.default));
 exports.default = PDFParser;

@@ -636,6 +636,7 @@ export default class PDFPage {
      *     size: 24,
      *     color: rgb(1, 0, 0),
      *     lineHeight: 24,
+     *     opacity: 0.75,
      *   },
      * )
      * ```
@@ -661,7 +662,8 @@ export default class PDFPage {
      *   y: 25,
      *   width: jpgDims.width,
      *   height: jpgDims.height,
-     *   rotate: degrees(30)
+     *   rotate: degrees(30),
+     *   opacity: 0.75,
      * })
      * ```
      * @param image The image to be drawn.
@@ -688,6 +690,7 @@ export default class PDFPage {
      *   xScale: 0.5,
      *   yScale: 0.5,
      *   rotate: degrees(30),
+     *   opacity: 0.75,
      * })
      * ```
      *
@@ -710,26 +713,28 @@ export default class PDFPage {
      * // Draw path as black line
      * page.drawSvgPath(svgPath, { x: 25, y: 75 })
      *
-     * // Change border style
+     * // Change border style and opacity
      * page.drawSvgPath(svgPath, {
      *   x: 25,
      *   y: 275,
      *   borderColor: rgb(0.5, 0.5, 0.5),
      *   borderWidth: 2,
+     *   borderOpacity: 0.75,
      * })
      *
-     * // Set fill color
+     * // Set fill color and opacity
      * page.drawSvgPath(svgPath, {
-     * 	 x: 25,
-     * 	 y: 475,
-     * 	 color: rgb(1.0, 0, 0),
+     *   x: 25,
+     *   y: 475,
+     *   color: rgb(1.0, 0, 0),
+     *   opacity: 0.75,
      * })
      *
      * // Draw 50% of original size
      * page.drawSvgPath(svgPath, {
-     * 	 x: 25,
-     * 	 y: 675,
-     * 	 scale: 0.5,
+     *   x: 25,
+     *   y: 675,
+     *   scale: 0.5,
      * })
      * ```
      * @param path The SVG path to be drawn.
@@ -745,7 +750,8 @@ export default class PDFPage {
      *   start: { x: 25, y: 75 },
      *   end: { x: 125, y: 175 },
      *   thickness: 2,
-     *   color: rgb(0.75, 0.2, 0.2)
+     *   color: rgb(0.75, 0.2, 0.2),
+     *   opacity: 0.75,
      * })
      * ```
      * @param options The options to be used when drawing the line.
@@ -764,7 +770,9 @@ export default class PDFPage {
      *   rotate: degrees(-15),
      *   borderWidth: 5,
      *   borderColor: grayscale(0.5),
-     *   color: rgb(0.75, 0.2, 0.2)
+     *   color: rgb(0.75, 0.2, 0.2),
+     *   opacity: 0.5,
+     *   borderOpacity: 0.75,
      * })
      * ```
      * @param options The options to be used when drawing the rectangle.
@@ -782,7 +790,9 @@ export default class PDFPage {
      *   rotate: degrees(-15),
      *   borderWidth: 5,
      *   borderColor: grayscale(0.5),
-     *   color: rgb(0.75, 0.2, 0.2)
+     *   color: rgb(0.75, 0.2, 0.2),
+     *   opacity: 0.5,
+     *   borderOpacity: 0.75,
      * })
      * ```
      * @param options The options to be used when drawing the square.
@@ -800,7 +810,9 @@ export default class PDFPage {
      *   yScale: 50,
      *   borderWidth: 5,
      *   borderColor: grayscale(0.5),
-     *   color: rgb(0.75, 0.2, 0.2)
+     *   color: rgb(0.75, 0.2, 0.2),
+     *   opacity: 0.5,
+     *   borderOpacity: 0.75,
      * })
      * ```
      * @param options The options to be used when drawing the ellipse.
@@ -817,7 +829,9 @@ export default class PDFPage {
      *   size: 100,
      *   borderWidth: 5,
      *   borderColor: grayscale(0.5),
-     *   color: rgb(0.75, 0.2, 0.2)
+     *   color: rgb(0.75, 0.2, 0.2),
+     *   opacity: 0.5,
+     *   borderOpacity: 0.75,
      * })
      * ```
      * @param options The options to be used when drawing the ellipse.
@@ -826,5 +840,6 @@ export default class PDFPage {
     private getFont;
     private getContentStream;
     private createContentStream;
+    private maybeEmbedGraphicsState;
 }
 //# sourceMappingURL=PDFPage.d.ts.map

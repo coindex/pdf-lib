@@ -4,6 +4,7 @@
 // MIT LICENSE
 // Updated for pdf-lib & TypeScript by Jeremy Messenger
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.svgPathToOperators = void 0;
 var operators_1 = require("./operators");
 var cx = 0;
 var cy = 0;

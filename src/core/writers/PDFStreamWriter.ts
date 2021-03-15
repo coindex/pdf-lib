@@ -44,7 +44,7 @@ class PDFStreamWriter extends PDFWriter {
   protected async computeBufferSize() {
     let objectNumber = this.context.largestObjectNumber + 1;
 
-    const header = PDFHeader.forVersion(1, 7);
+    const header = PDFHeader.forVersion(1, 4);
 
     let size = header.sizeInBytes() + 2;
 

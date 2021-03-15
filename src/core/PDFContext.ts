@@ -62,7 +62,7 @@ class PDFContext {
 
   private constructor() {
     this.largestObjectNumber = 0;
-    this.header = PDFHeader.forVersion(1, 7);
+    this.header = PDFHeader.forVersion(1, 4);
     this.trailerInfo = {};
 
     this.indirectObjects = new Map();

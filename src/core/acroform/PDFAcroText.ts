@@ -6,6 +6,7 @@ import PDFHexString from 'src/core/objects/PDFHexString';
 import PDFName from 'src/core/objects/PDFName';
 import PDFRef from 'src/core/objects/PDFRef';
 import PDFAcroTerminal from 'src/core/acroform/PDFAcroTerminal';
+import { PDFArray } from '..';
 
 class PDFAcroText extends PDFAcroTerminal {
   static fromDict = (dict: PDFDict, ref: PDFRef) => new PDFAcroText(dict, ref);
@@ -31,6 +32,12 @@ class PDFAcroText extends PDFAcroTerminal {
     return undefined;
   }
 
+  Rect(): PDFArray | undefined {
+    const rect = this.dict.lookup(PDFName.of('Rect'));
+    if (rect instanceof PDFArray) return rect;
+    return undefined;
+  }
+
   setMaxLength(maxLength: number) {
     this.dict.set(PDFName.of('MaxLen'), PDFNumber.of(maxLength));
   }
@@ -49,6 +56,26 @@ class PDFAcroText extends PDFAcroTerminal {
 
   getQuadding(): number | undefined {
     return this.Q()?.asNumber();
+  }
+
+  getRectHeight(): number | undefined {
+    const rect = this.Rect();
+    if (rect)
+      return Math.abs(
+        rect.lookup(3, PDFNumber).asNumber() -
+          rect.lookup(1, PDFNumber).asNumber(),
+      );
+    return undefined;
+  }
+
+  getRectWidth(): number | undefined {
+    const rect = this.Rect();
+    if (rect)
+      return Math.abs(
+        rect.lookup(2, PDFNumber).asNumber() -
+          rect.lookup(0, PDFNumber).asNumber(),
+      );
+    return undefined;
   }
 
   setValue(value: PDFHexString | PDFString) {

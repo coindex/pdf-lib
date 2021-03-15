@@ -6,6 +6,7 @@ var PDFString_1 = tslib_1.__importDefault(require("../objects/PDFString"));
 var PDFHexString_1 = tslib_1.__importDefault(require("../objects/PDFHexString"));
 var PDFName_1 = tslib_1.__importDefault(require("../objects/PDFName"));
 var PDFAcroTerminal_1 = tslib_1.__importDefault(require("./PDFAcroTerminal"));
+var __1 = require("..");
 var PDFAcroText = /** @class */ (function (_super) {
     tslib_1.__extends(PDFAcroText, _super);
     function PDFAcroText() {
@@ -21,6 +22,12 @@ var PDFAcroText = /** @class */ (function (_super) {
         var q = this.dict.lookup(PDFName_1.default.of('Q'));
         if (q instanceof PDFNumber_1.default)
             return q;
+        return undefined;
+    };
+    PDFAcroText.prototype.Rect = function () {
+        var rect = this.dict.lookup(PDFName_1.default.of('Rect'));
+        if (rect instanceof __1.PDFArray)
+            return rect;
         return undefined;
     };
     PDFAcroText.prototype.setMaxLength = function (maxLength) {
@@ -39,6 +46,20 @@ var PDFAcroText = /** @class */ (function (_super) {
     PDFAcroText.prototype.getQuadding = function () {
         var _a;
         return (_a = this.Q()) === null || _a === void 0 ? void 0 : _a.asNumber();
+    };
+    PDFAcroText.prototype.getRectHeight = function () {
+        var rect = this.Rect();
+        if (rect)
+            return Math.abs(rect.lookup(3, PDFNumber_1.default).asNumber() -
+                rect.lookup(1, PDFNumber_1.default).asNumber());
+        return undefined;
+    };
+    PDFAcroText.prototype.getRectWidth = function () {
+        var rect = this.Rect();
+        if (rect)
+            return Math.abs(rect.lookup(2, PDFNumber_1.default).asNumber() -
+                rect.lookup(0, PDFNumber_1.default).asNumber());
+        return undefined;
     };
     PDFAcroText.prototype.setValue = function (value) {
         this.dict.set(PDFName_1.default.of('V'), value);

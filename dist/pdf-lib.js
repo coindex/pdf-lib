@@ -15043,6 +15043,12 @@
                 return q;
             return undefined;
         };
+        PDFAcroText.prototype.Rect = function () {
+            var rect = this.dict.lookup(PDFName.of('Rect'));
+            if (rect instanceof PDFArray)
+                return rect;
+            return undefined;
+        };
         PDFAcroText.prototype.setMaxLength = function (maxLength) {
             this.dict.set(PDFName.of('MaxLen'), PDFNumber.of(maxLength));
         };
@@ -15059,6 +15065,20 @@
         PDFAcroText.prototype.getQuadding = function () {
             var _a;
             return (_a = this.Q()) === null || _a === void 0 ? void 0 : _a.asNumber();
+        };
+        PDFAcroText.prototype.getRectHeight = function () {
+            var rect = this.Rect();
+            if (rect)
+                return Math.abs(rect.lookup(3, PDFNumber).asNumber() -
+                    rect.lookup(1, PDFNumber).asNumber());
+            return undefined;
+        };
+        PDFAcroText.prototype.getRectWidth = function () {
+            var rect = this.Rect();
+            if (rect)
+                return Math.abs(rect.lookup(2, PDFNumber).asNumber() -
+                    rect.lookup(0, PDFNumber).asNumber());
+            return undefined;
         };
         PDFAcroText.prototype.setValue = function (value) {
             this.dict.set(PDFName.of('V'), value);
